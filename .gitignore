@@ -13,3 +13,7 @@
 # eide template
 *.ept
 *.eide-template
+
+# SUROY
+.DS_Store
+*/.DS_Store

@@ -98,7 +98,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_UART_Receive_IT(&huart1, (uint8_t *)&USART1_NewData, 1); //开启串口1接收中断：初始上电默认关闭状态
   HAL_ADCEx_Calibration_Start(&hadc1); //ADC采样校准
-  HAL_ADC_Start_DMA(&hadc1, (uint32_t *)&ADC1_Value, 1); // 启动DMA，采集到数据存入的变量地址，长度为1字节
+  // HAL_ADC_Start_DMA(&hadc1, (uint32_t *)&ADC1_Value, 1); // 单通道：启动DMA，采集到数据存入的变量地址，长度为1字节
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t *)ADC1_MulChannel_Value, 2); // 双通道：启动DMA，采集到数据存入的变量地址，长度为2字节
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -134,7 +135,7 @@ int main(void)
    */
     LED_Check(0);
     
-    printf("ADC1_DMA=%04d  ADC1=%04d\r\n", ADC1_Value, ADC_IN_1()); //读取ADC1数值，4位十进制
+    printf("ADC1_DMA_0=%04d  ADC1_DMA_1=%04d\r\n", ADC1_MulChannel_Value[0], ADC1_MulChannel_Value[1]); //读取ADC1数值，4位十进制
 
   }
   /* USER CODE END 3 */

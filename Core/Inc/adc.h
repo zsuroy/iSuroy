@@ -43,6 +43,7 @@ void MX_ADC1_Init(void);
 /* USER CODE BEGIN Prototypes */
 uint16_t ADC_IN_1(void); // 开始ADC采集
 extern uint16_t ADC1_Value; // ADC1_DMA_Value
+extern uint16_t ADC1_MulChannel_Value[2]; // ADC1_DMA_MulChannel
 
 /* USER CODE END Prototypes */
 

@@ -21,7 +21,7 @@
 #include "rtc.h"
 
 /* USER CODE BEGIN 0 */
-
+#include <stdio.h>
 // 定义存放RTC结构体
 RTC_DateTypeDef RtcDate; // 保存日期
 RTC_TimeTypeDef RtcTime; // 保存时间
@@ -141,6 +141,56 @@ void RTC_Read(void)
   HAL_RTC_GetTime(&hrtc, &RtcTime, RTC_FORMAT_BIN); // 读出时间值到变量
   HAL_RTC_GetDate(&hrtc, &RtcDate, RTC_FORMAT_BIN); // 读出日期到变量 【一定要先读时间再读日期】
     // printf("DateTime: %04d-%02d-%02d %02d:%02d:%02d \r\n", 2000+RtcDate.Year, RtcDate.Month, RtcDate.Date, RtcTime.Hours, RtcTime.Minutes, RtcTime.Seconds); // 显示日期时间
+}
+
+/**
+ * @brief RTC时钟控制
+ * 
+ * @param str 指令字符(串)
+ * @param opt 指令选项: 0读取; 非0 根据指令字符判断
+ * 
+ * @note
+ * 用串口时记得每次清空串口接收标志:  USART1_RX_STA=0; // 串口接收标志清0
+ * 标记清空串口接收缓存: USART1_RX_BUF[0] = '\0';
+ */
+void RTC_Command(uint8_t str[], uint8_t opt)
+{
+  if(opt == 0)
+  { // 读日期时间及提示
+    RTC_Read();
+    printf(" SUROY - RTC TEST\r\n");
+    printf("DateTime: %04d-%02d-%02d %02d:%02d:%02d \r\n", 2000+RtcDate.Year, RtcDate.Month, RtcDate.Date, RtcTime.Hours, RtcTime.Minutes, RtcTime.Seconds); // 显示日期时间
+    printf(" Input Enter to update time, 'C' Initial Clock\r\n");
+    printf(" DateTime Format: 20230101120000\r\n");
+  }
+  else { 
+    int i=0;
+    while(str[i] != '\0')i++; // 字符串长度
+
+    if(i==1) // 字符串长度为1
+    {
+      if( (str[0] == 'c') || (str[0] == 'C') )
+      {  // 时钟初始化
+        MX_RTC_Init(); // 键盘输入c或C，初始化时钟
+        printf(" <RTC_Clock init>");
+      } else printf(" 指令错误！ \r\n");
+
+    } else if (i == 14)
+    { //长度为14即日期时间格式； 年份前两位固定为20
+      RtcDate.Year = (str[2]-0x30)*10 + (str[3]-0x30); // 减去0x30(空格)得到0-9十进制数
+      RtcDate.Month = (str[4]-0x30)*10 + (str[5]-0x30); // 减去0x30(空格)得到0-9十进制数
+      RtcDate.Date = (str[6]-0x30)*10 + (str[7]-0x30); // 减去0x30(空格)得到0-9十进制数
+      RtcTime.Hours = (str[8]-0x30)*10 + (str[9]-0x30); // 减去0x30(空格)得到0-9十进制数
+      RtcTime.Minutes = (str[10]-0x30)*10 + (str[11]-0x30); // 减去0x30(空格)得到0-9十进制数
+      RtcTime.Seconds = (str[12]-0x30)*10 + (str[13]-0x30); // 减去0x30(空格)得到0-9十进制数
+      // 时间写入
+      if(HAL_RTC_SetTime(&hrtc, &RtcTime, RTC_FORMAT_BIN) != HAL_OK )printf(" 时间写入失败！\r\n");
+      else if(HAL_RTC_SetDate(&hrtc, &RtcDate, RTC_FORMAT_BIN) != HAL_OK )printf(" 日期写入失败！\r\n");
+      else printf("写入成功！\r\n");
+    }
+    str[0] = '\0'; //清空字符串长度标志, 用于对传入的 USART1_RX_BUF 进行标记清空
+  }
+
 }
 
 /* USER CODE END 1 */

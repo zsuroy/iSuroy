@@ -106,7 +106,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  uint8_t RecData; // 接收输入字符
+  // uint8_t RecData; // 接收输入字符
   printf("Retarget:\r\n");
   printf("-----Suroy.cn\r\n");
 
@@ -135,10 +135,17 @@ int main(void)
       USART1_RX_BUF[0]='\0'; // 置缓冲区为空
     }
    */
+  
     LED_Check(0);
-    RTC_Read();
-    printf("DateTime: %04d-%02d-%02d %02d:%02d:%02d \r\n", 2000+RtcDate.Year, RtcDate.Month, RtcDate.Date, RtcTime.Hours, RtcTime.Minutes, RtcTime.Seconds); // 显示日期时间
-    printf("ADC1_DMA_0=%04d  ADC1_DMA_1=%04d\r\n", ADC1_MulChannel_Value[0], ADC1_MulChannel_Value[1]); //读取ADC1数值，4位十进制
+    RTC_Command(0, 0); // 时间及提示读取
+    RTC_Command(USART1_RX_BUF, 1); // 时间更改配置
+    printf("%s", USART1_RX_BUF);
+    // printf("DateTime: %04d-%02d-%02d %02d:%02d:%02d \r\n", 2000+RtcDate.Year, RtcDate.Month, RtcDate.Date, RtcTime.Hours, RtcTime.Minutes, RtcTime.Seconds); // 显示日期时间
+    USART1_RX_STA=0; // 时钟测试：串口接收标志清0
+    // USART1_RX_BUF[0]='\0'; // 置清空标志
+    HAL_Delay(200); // 延时200ms以防看不见测试效果
+
+    // printf("ADC1_DMA_0=%04d  ADC1_DMA_1=%04d\r\n", ADC1_MulChannel_Value[0], ADC1_MulChannel_Value[1]); //读取ADC1数值，4位十进制
 
   }
   /* USER CODE END 3 */

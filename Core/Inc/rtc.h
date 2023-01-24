@@ -44,7 +44,7 @@ void MX_RTC_Init(void);
 /* USER CODE BEGIN Prototypes */
 
 void RTC_Read(void);
-
+void RTC_Command(uint8_t str[], uint8_t opt);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

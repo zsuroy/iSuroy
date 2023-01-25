@@ -101,6 +101,8 @@ USART1_RX_BUF[0] = '\0'; //标记清空串口接收缓存
 1. 禁用 CubeMX 自动生成 RTC 函数初始化  
 2. 采用修改的 MX_RTC_INIT() 函数进行初始化并在 main.c 调用
 
+或可参阅分离出来的程序 `iCode/rtc/rtc.c`
+
 
 ## V1.0.5
 
@@ -127,3 +129,37 @@ HAL_Delay(1500); // 等待下一次
 ```
 
 ⚠️ 注意：此版本忽略了 V1.0.4 走时优化，还原 V1.0.3 的 RTC 功能
+
+## V1.0.6
+
+> 新增 USB_Slave 驱动，作虚拟串口通讯使用  
+> 2022.1.26
+
+使用说明:
+
+1. CubeMX 生成代码时需要分配堆栈空间以防编译/运行出错  
+   + Minimun XXXX Size: 原来 -> 目标大小
+   + Minimun Heap Size: 0x200 -> 0x1000
+   + Minimun Stack Size: 0x400 -> 0x1000
+
+2. 添加项目资源
+   + `/USB_DEVICE/` USB驱动文件夹
+   + `/Middlewares/` 中间件驱动文件夹
+   + PS: **最后添加对应项目头文件包含目录**
+
+3. 修改对应功能函数
+   * `/USB_DEVICE/App/usbd_cdc_if.c` 虚拟串口通讯文件
+      + `CDC_Receive_FS` USB接收函数
+      + `CDC_Transmit_FS` USB发送函数
+      + `USB_printf` 自定义封装的模拟串口发送函数
+   * `/USB_DEVICE/App/usbd_cdc_if.h` 虚拟串口通讯头文件
+
+
+⚠️ 注意事项：
+
+初始化时需要: `HAL_CAN_MspDeInit(&hcan); // 关闭CAN功能，使USB功能可以被电脑识别` 
+
+由于USB与CAN共用一个RAM空间，不能**同时**使用，若需要使用 CAN 时可以重新初始化。
+
+
+PS: 构思一下，物理外挂那不就来了🐶

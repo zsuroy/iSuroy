@@ -22,6 +22,7 @@
 #include "dma.h"
 #include "rtc.h"
 #include "usart.h"
+#include "usb_device.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -32,6 +33,7 @@
 #include "../../iCode/delay/delay.h"
 #include "../../iCode/relay/relay.h"
 #include "../../iCode/DHT11/dht11.h"
+#include "../../USB_DEVICE/App/usbd_cdc_if.h"
 #include "stdio.h"
 /* USER CODE END Includes */
 
@@ -98,6 +100,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_ADC1_Init();
   MX_RTC_Init();
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
   HAL_UART_Receive_IT(&huart1, (uint8_t *)&USART1_NewData, 1); //开启串口1接收中断：初始上电默认关闭状态
   HAL_ADCEx_Calibration_Start(&hadc1); //ADC采样校准
@@ -168,6 +171,9 @@ int main(void)
       HAL_Delay(1500);
     }
 
+    // USB模拟串口
+    USB_Debug();
+
     // DMA
     // printf("ADC1_DMA_0=%04d  ADC1_DMA_1=%04d\r\n", ADC1_MulChannel_Value[0], ADC1_MulChannel_Value[1]); //读取ADC1数值，4位十进制
 
@@ -214,9 +220,11 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_ADC;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_ADC
+                              |RCC_PERIPHCLK_USB;
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
   PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV8;
+  PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();

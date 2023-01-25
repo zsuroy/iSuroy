@@ -125,3 +125,5 @@ DHT11_ReadData(DHT11_BUF);
 printf("DHT11: %02d%c - %02d 'C\r\n", DHT11_BUF[0], '%' , DHT11_BUF[1]); //02:23:24:024 -> DHT11: 81% - 12 'C
 HAL_Delay(1500); // 等待下一次
 ```
+
+⚠️ 注意：此版本忽略了 V1.0.4 走时优化，还原 V1.0.3 的 RTC 功能

@@ -39,32 +39,7 @@ const uint8_t mon_table[12]={31,28,31,30,31,30,31,31,30,31,30,31};//平年的月
 RTC_HandleTypeDef hrtc;
 
 /* RTC init function */
-void MX_RTC_Init(void) // 优化走时版V1.0.4: 初始化
-{
-  // 确保掉电走时保留
-  __HAL_RCC_PWR_CLK_ENABLE(); // 使能电源时钟PWR-开启BKP寄存器时钟
-  HAL_PWR_EnableBkUpAccess(); // 取消备份区域写保护
-
-  /** Initialize RTC Only
-  */
-  hrtc.Instance = RTC;
-  hrtc.Init.AsynchPrediv = RTC_AUTO_1_SECOND;
-  hrtc.Init.OutPut = RTC_OUTPUTSOURCE_ALARM;
-  if (HAL_RTC_Init(&hrtc) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  if( HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR1) != 0x9527 ) // 判断是否首次上电
-  {
-    HAL_RTCEx_BKUPWrite(&hrtc, RTC_BKP_DR1, 0x9527); // 首次上电则标记数值(写入上电标志)
-    RTC_Set(2023,01,01,10,02,03); // 优化后走时
-  } //  if( HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR1) != 0x9527 ) // 判断是否首次上电
-  
-}
-
-/* RTC init function */
-void MX_RTC_Init_Orign(void) // V1.0.3 RTC, 使用时替换原版
+void MX_RTC_Init(void)
 {
 
   /* USER CODE BEGIN RTC_Init 0 */
@@ -106,6 +81,7 @@ void MX_RTC_Init_Orign(void) // V1.0.3 RTC, 使用时替换原版
   sTime.Hours = 0x0;
   sTime.Minutes = 0x0;
   sTime.Seconds = 0x0;
+
   if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
   {
     Error_Handler();
@@ -216,15 +192,24 @@ void RTC_Command(uint8_t str[], uint8_t opt)
       RtcTime.Minutes = (str[10]-0x30)*10 + (str[11]-0x30); // 减去0x30(空格)得到0-9十进制数
       RtcTime.Seconds = (str[12]-0x30)*10 + (str[13]-0x30); // 减去0x30(空格)得到0-9十进制数
       // 时间写入
-      if(HAL_RTC_SetTime(&hrtc, &RtcTime, RTC_FORMAT_BIN) != HAL_OK )printf(" 时间写入失败！\r\n");
-      else if(HAL_RTC_SetDate(&hrtc, &RtcDate, RTC_FORMAT_BIN) != HAL_OK )printf(" 日期写入失败！\r\n");
-      else printf("写入成功！\r\n");
+      if(HAL_RTC_SetTime(&hrtc, &RtcTime, RTC_FORMAT_BIN) != HAL_OK )printf(" RTC_Clock_Opt write failure!\r\n");
+      else if(HAL_RTC_SetDate(&hrtc, &RtcDate, RTC_FORMAT_BIN) != HAL_OK )printf(" RTC_Clock_Opt write failure!\r\n");
+      else printf("RTC_Clock_Opt write success!\r\n");
     }
     str[0] = '\0'; //清空字符串长度标志, 用于对传入的 USART1_RX_BUF 进行标记清空
   }
 
 }
 
+
+/**
+ * @brief 优化版提示
+ * @note 使用走时优化版
+ * 1. 拉取 V1.0.4 版本
+ * 2. 注意更改初始化函数
+ * 3. 屏蔽掉 CubeMX 高级设置中 -> 自动生成RTC初始化的代码
+ * 
+ */
 
 
 /**

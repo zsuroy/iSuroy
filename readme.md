@@ -101,3 +101,27 @@ USART1_RX_BUF[0] = '\0'; //标记清空串口接收缓存
 1. 禁用 CubeMX 自动生成 RTC 函数初始化  
 2. 采用修改的 MX_RTC_INIT() 函数进行初始化并在 main.c 调用
 
+
+## V1.0.5
+
+> 新增 DHT11 温湿度传感器驱动  
+> 2022.1.26
+
+调用说明:
+
+
+1. 初始化调用 
+
+```c
+HAL_Delay(500); // 延时等待MCU稳定
+DHT11_Init();
+HAL_Delay(1500); // 延时等待DHT11稳定
+```
+
+2. 读数据调用 
+
+```c
+DHT11_ReadData(DHT11_BUF);
+printf("DHT11: %02d%c - %02d 'C\r\n", DHT11_BUF[0], '%' , DHT11_BUF[1]); //02:23:24:024 -> DHT11: 81% - 12 'C
+HAL_Delay(1500); // 等待下一次
+```

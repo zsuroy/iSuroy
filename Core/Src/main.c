@@ -31,6 +31,7 @@
 #include "../../iCode/beep/beep.h"
 #include "../../iCode/delay/delay.h"
 #include "../../iCode/relay/relay.h"
+#include "../../iCode/DHT11/dht11.h"
 #include "stdio.h"
 /* USER CODE END Includes */
 
@@ -102,6 +103,12 @@ int main(void)
   HAL_ADCEx_Calibration_Start(&hadc1); //ADC采样校准
   // HAL_ADC_Start_DMA(&hadc1, (uint32_t *)&ADC1_Value, 1); // 单通道：启动DMA，采集到数据存入的变量地址，长度为1字节
   HAL_ADC_Start_DMA(&hadc1, (uint32_t *)ADC1_MulChannel_Value, 2); // 双通道：启动DMA，采集到数据存入的变量地址，长度为2字节
+  
+  
+  HAL_Delay(500); // 延时等待MCU稳定
+  DHT11_Init();
+  HAL_Delay(1500); // 延时等待DHT11稳定
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -137,12 +144,16 @@ int main(void)
    */
 
     LED_Check(0);
+
+    // 普通RTC
     // RTC_Command(0, 0); // 时间及提示读取
     // RTC_Command(USART1_RX_BUF, 1); // 时间更改配置
     
-    //优化走时
+    /**优化走时
+     * 
     RTC_Opt_Command(0, 0); // 时间及提示读取
     RTC_Opt_Command(USART1_RX_BUF, 1); // 时间更改配置
+    */
 
     printf("%s", USART1_RX_BUF);
     // printf("DateTime: %04d-%02d-%02d %02d:%02d:%02d \r\n", 2000+RtcDate.Year, RtcDate.Month, RtcDate.Date, RtcTime.Hours, RtcTime.Minutes, RtcTime.Seconds); // 显示日期时间
@@ -150,6 +161,14 @@ int main(void)
     // USART1_RX_BUF[0]='\0'; // 置清空标志
     HAL_Delay(200); // 延时200ms以防看不见测试效果
 
+    // DHT11
+    if(DHT11_ReadData(DHT11_BUF) == HAL_OK)
+    {
+      printf("DHT11: %02d%c - %02d 'C\r\n", DHT11_BUF[0], '%' , DHT11_BUF[1]); //02:23:24:024 -> DHT11: 81% - 12 'C
+      HAL_Delay(1500);
+    }
+
+    // DMA
     // printf("ADC1_DMA_0=%04d  ADC1_DMA_1=%04d\r\n", ADC1_MulChannel_Value[0], ADC1_MulChannel_Value[1]); //读取ADC1数值，4位十进制
 
   }

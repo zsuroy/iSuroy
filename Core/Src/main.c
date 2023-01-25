@@ -135,10 +135,15 @@ int main(void)
       USART1_RX_BUF[0]='\0'; // 置缓冲区为空
     }
    */
-  
+
     LED_Check(0);
-    RTC_Command(0, 0); // 时间及提示读取
-    RTC_Command(USART1_RX_BUF, 1); // 时间更改配置
+    // RTC_Command(0, 0); // 时间及提示读取
+    // RTC_Command(USART1_RX_BUF, 1); // 时间更改配置
+    
+    //优化走时
+    RTC_Opt_Command(0, 0); // 时间及提示读取
+    RTC_Opt_Command(USART1_RX_BUF, 1); // 时间更改配置
+
     printf("%s", USART1_RX_BUF);
     // printf("DateTime: %04d-%02d-%02d %02d:%02d:%02d \r\n", 2000+RtcDate.Year, RtcDate.Month, RtcDate.Date, RtcTime.Hours, RtcTime.Minutes, RtcTime.Seconds); // 显示日期时间
     USART1_RX_STA=0; // 时钟测试：串口接收标志清0

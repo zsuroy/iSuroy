@@ -2,7 +2,7 @@
 
 <div align="center">
   <p>
-      <img alt="logo" src="https://ghproxy.com/github.com/zsuroy/iSuroy/blob/main/logo.png"/>
+      <img alt="logo" src="https://raw.githubusercontent.com/zsuroy/iSuroy/master/logo.png"/>
   </p>
 
   <h1>STM32 项目驱动应用库</h1>
@@ -79,3 +79,25 @@
 注意:
 
 使用时需要及时清空串口接收标志，及标记串口接收缓存区。
+详细请查看 `RTC_Command(uint8_t str[], uint8_t opt)` 函数
+
+```c
+USART1_RX_STA=0; // 串口接收标志清0
+USART1_RX_BUF[0] = '\0'; //标记清空串口接收缓存
+```
+
+当前版本的 RTC 时钟断电复位后，重新上电后仅仅会保留时间，而日期会被清零复位，若需要创建完善版本的 RTC 功能见 `[V1.0.4])`
+
+
+## V1.0.4
+
+> RTC 时钟走时优化: 断电之后日期时间均可正常保留  
+> 2022.1.25
+
+注意： 无备用电池，未得到有效测试结果，如需使用建议先调试。
+
+使用说明：
+
+1. 禁用 CubeMX 自动生成 RTC 函数初始化  
+2. 采用修改的 MX_RTC_INIT() 函数进行初始化并在 main.c 调用
+

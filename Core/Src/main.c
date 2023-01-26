@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "adc.h"
+#include "crc.h"
 #include "dma.h"
 #include "rtc.h"
 #include "usart.h"
@@ -103,6 +104,7 @@ int main(void)
   MX_ADC1_Init();
   MX_RTC_Init();
   MX_USB_DEVICE_Init();
+  MX_CRC_Init();
   /* USER CODE BEGIN 2 */
   HAL_UART_Receive_IT(&huart1, (uint8_t *)&USART1_NewData, 1); //开启串口1接收中断：初始上电默认关闭状态
   HAL_ADCEx_Calibration_Start(&hadc1); //ADC采样校准
@@ -173,6 +175,9 @@ int main(void)
     // ECO_Config(1); // 睡眠
     // ECO_Config(2); // 停机
     ECO_Config(3); // 待机
+
+    // CRC 校验测试
+    CRC_Debug();
 
     // DHT11
     if(DHT11_ReadData(DHT11_BUF) == HAL_OK)

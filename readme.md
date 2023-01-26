@@ -197,3 +197,20 @@ extern void SystemClock_Config(void); // 导出时钟函数以便于节能模式
      * 长按 Key2 按键启动待机模式；按RST键从待机模式中唤醒 🤡 
      * 调试建议将对应函数直接复制到 main.c 中测试
    + 已知问题： 若直接将 PA0 键设置为 SYS_WKUP 有时候会导致编译报错，可能是 `eco.c` 文件到问题
+
+
+
+## V1.0.8
+
+> CRC 校验功能  
+> 2023.1.27
+
+使用说明:
+
+1. CubeMX 生产CRC代码
+   + Computing -> CRC: Activated
+
+2. 编写 CRC 程序
+   + `Core/Src/crc.c` 修改CRC程序
+   + `CRCBUF` 即存储需要校验数据缓冲区
+

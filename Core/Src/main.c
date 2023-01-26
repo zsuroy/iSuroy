@@ -179,6 +179,9 @@ int main(void)
     // CRC 校验测试
     CRC_Debug();
 
+    //读芯片ID
+    ID_Get(1);
+
     // DHT11
     if(DHT11_ReadData(DHT11_BUF) == HAL_OK)
     {

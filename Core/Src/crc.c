@@ -24,6 +24,7 @@
 
 #include <stdio.h>
 static const uint32_t CRCBUF[4] = {0x02, 0x20, 0x02, 0x03}; // CRC校验数据数组
+static uint32_t MCUID[3] = {}; // CRC校验数据数组
 
 /* USER CODE END 0 */
 
@@ -103,7 +104,23 @@ uint32_t CRC_Cacluate(uint8_t clear)
  */
 void CRC_Debug(void)
 {
-  printf("CRC Value: %08X \r\n", CRC_Cacluate(1));
+  printf("CRC Value: %08X \r\n", (unsigned int)CRC_Cacluate(1));
 }
+
+/**
+ * @brief 读芯片ID
+ * @note 移植需要根据具体芯片手册更改地址
+ * @param show 是否显示 
+ * @return uint32_t 
+ */
+void ID_Get(uint8_t show)
+{
+  MCUID[0] = *(__IO uint32_t *)(0x1FFFF7E8); //读出3个32位芯片ID（高字节）
+  MCUID[1] = *(__IO uint32_t *)(0x1FFFF7EC);
+  MCUID[2] = *(__IO uint32_t *)(0x1FFFF7F0); //低字节
+  if(show)printf("MCU ID: %08X %08X %08X\r\n",(unsigned int)MCUID[0], (unsigned int)MCUID[1],(unsigned int) MCUID[2]); // 串口显示
+  return;
+}
+
 
 /* USER CODE END 1 */

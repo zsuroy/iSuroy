@@ -214,3 +214,5 @@ extern void SystemClock_Config(void); // 导出时钟函数以便于节能模式
    + `Core/Src/crc.c` 修改CRC程序
    + `CRCBUF` 即存储需要校验数据缓冲区
 
+3. 芯片ID读取
+   + `void ID_Get(uint8_t show);`

@@ -44,7 +44,7 @@ void MX_CRC_Init(void);
 
 uint32_t CRC_Cacluate(uint8_t clear);
 void CRC_Debug(void);
-
+void ID_Get(uint8_t show);
 
 /* USER CODE END Prototypes */
 

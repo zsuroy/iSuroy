@@ -192,9 +192,9 @@ void RTC_Command(uint8_t str[], uint8_t opt)
       RtcTime.Minutes = (str[10]-0x30)*10 + (str[11]-0x30); // 减去0x30(空格)得到0-9十进制数
       RtcTime.Seconds = (str[12]-0x30)*10 + (str[13]-0x30); // 减去0x30(空格)得到0-9十进制数
       // 时间写入
-      if(HAL_RTC_SetTime(&hrtc, &RtcTime, RTC_FORMAT_BIN) != HAL_OK )printf(" RTC_Clock_Opt write failure!\r\n");
-      else if(HAL_RTC_SetDate(&hrtc, &RtcDate, RTC_FORMAT_BIN) != HAL_OK )printf(" RTC_Clock_Opt write failure!\r\n");
-      else printf("RTC_Clock_Opt write success!\r\n");
+      if(HAL_RTC_SetTime(&hrtc, &RtcTime, RTC_FORMAT_BIN) != HAL_OK )printf(" RTC_Clock write failure!\r\n");
+      else if(HAL_RTC_SetDate(&hrtc, &RtcDate, RTC_FORMAT_BIN) != HAL_OK )printf(" RTC_Clock write failure!\r\n");
+      else printf("RTC_Clock write success!\r\n");
     }
     str[0] = '\0'; //清空字符串长度标志, 用于对传入的 USART1_RX_BUF 进行标记清空
   }

@@ -37,6 +37,8 @@ extern "C" {
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
 
+extern void SystemClock_Config(void); // 导出时钟函数以便于节能模式调用
+
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
@@ -59,6 +61,8 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define LED2_Pin GPIO_PIN_13
 #define LED2_GPIO_Port GPIOC
+#define KEY2_Pin GPIO_PIN_0
+#define KEY2_GPIO_Port GPIOA
 #define KEY_Pin GPIO_PIN_1
 #define KEY_GPIO_Port GPIOA
 #define BEEP_Pin GPIO_PIN_2

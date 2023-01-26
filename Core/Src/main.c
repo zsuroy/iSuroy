@@ -34,6 +34,8 @@
 #include "../../iCode/relay/relay.h"
 #include "../../iCode/DHT11/dht11.h"
 #include "../../USB_DEVICE/App/usbd_cdc_if.h"
+#include "../../iCode/eco/eco.h"
+#include "../../iCode/sys/syscalls.c"
 #include "stdio.h"
 /* USER CODE END Includes */
 
@@ -107,6 +109,7 @@ int main(void)
   // HAL_ADC_Start_DMA(&hadc1, (uint32_t *)&ADC1_Value, 1); // 单通道：启动DMA，采集到数据存入的变量地址，长度为1字节
   HAL_ADC_Start_DMA(&hadc1, (uint32_t *)ADC1_MulChannel_Value, 2); // 双通道：启动DMA，采集到数据存入的变量地址，长度为2字节
   
+  ECO_STANDBY_Check(); // 节能：待机模式唤醒检测
   
   HAL_Delay(500); // 延时等待MCU稳定
   DHT11_Init();
@@ -158,11 +161,18 @@ int main(void)
     RTC_Opt_Command(USART1_RX_BUF, 1); // 时间更改配置
     */
 
-    printf("%s", USART1_RX_BUF);
+    // 走时公共代码
+    // printf("%s", USART1_RX_BUF);
     // printf("DateTime: %04d-%02d-%02d %02d:%02d:%02d \r\n", 2000+RtcDate.Year, RtcDate.Month, RtcDate.Date, RtcTime.Hours, RtcTime.Minutes, RtcTime.Seconds); // 显示日期时间
-    USART1_RX_STA=0; // 时钟测试：串口接收标志清0
+    // USART1_RX_STA=0; // 时钟测试：串口接收标志清0
     // USART1_RX_BUF[0]='\0'; // 置清空标志
-    HAL_Delay(200); // 延时200ms以防看不见测试效果
+    // HAL_Delay(200); // 延时200ms以防看不见测试效果
+
+    
+    // 节能模式
+    // ECO_Config(1); // 睡眠
+    // ECO_Config(2); // 停机
+    ECO_Config(3); // 待机
 
     // DHT11
     if(DHT11_ReadData(DHT11_BUF) == HAL_OK)
@@ -173,6 +183,7 @@ int main(void)
 
     // USB模拟串口
     USB_Debug();
+
 
     // DMA
     // printf("ADC1_DMA_0=%04d  ADC1_DMA_1=%04d\r\n", ADC1_MulChannel_Value[0], ADC1_MulChannel_Value[1]); //读取ADC1数值，4位十进制

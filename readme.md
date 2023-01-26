@@ -163,3 +163,37 @@ HAL_Delay(1500); // 等待下一次
 
 
 PS: 构思一下，物理外挂那不就来了🐶
+
+
+
+## V1.0.7
+
+> 新增节能模式：睡眠模式、停机模式、待机模式  
+> 2022.1.26
+
+
+使用说明:  
+> `/iCode/eco/eco.c` 文件
+
+1. 在 main.h 中导出时钟函数
+```c
+extern void SystemClock_Config(void); // 导出时钟函数以便于节能模式调用
+```
+
+2. 停机模式中配置
+   > 此例中使用 key2 按下触发外部中断来唤醒
+
+   + 需要配置1个GPIO作为外部触发中断(GPIO_EXTI)以唤醒: e.g. PA0 -> GPIO_EXTI0
+   + 参数如下: GPIO_Mode -> 下降沿触发; GPIO_Pull-up 上拉
+   + NVIC 中允许 EXTI0
+
+3. 待机模式配置
+   > 此例中使用 SYS_WKUP 进行触发唤醒
+
+   + 为了能够正常使用 key2 的按键功能，仍旧使用 CubeMX 生产 PA0 作为普通的 GPIO 输入
+   + 参数如下: GPIO_Mode -> INPUT; GPIO_Pull-up/Down 上拉
+   + 而待机模式中采用自定义函数功能的方式将其设置为 SYS_WKUP 功能
+   + 使用说明
+     * 长按 Key2 按键启动待机模式；按RST键从待机模式中唤醒 🤡 
+     * 调试建议将对应函数直接复制到 main.c 中测试
+   + 已知问题： 若直接将 PA0 键设置为 SYS_WKUP 有时候会导致编译报错，可能是 `eco.c` 文件到问题

@@ -36,7 +36,6 @@
 #include "../../iCode/DHT11/dht11.h"
 #include "../../USB_DEVICE/App/usbd_cdc_if.h"
 #include "../../iCode/eco/eco.h"
-#include "../../iCode/sys/syscalls.c"
 #include "stdio.h"
 /* USER CODE END Includes */
 
@@ -62,6 +61,7 @@
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+static void MX_NVIC_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -105,13 +105,16 @@ int main(void)
   MX_RTC_Init();
   MX_USB_DEVICE_Init();
   MX_CRC_Init();
+
+  /* Initialize interrupts */
+  MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
   HAL_UART_Receive_IT(&huart1, (uint8_t *)&USART1_NewData, 1); //开启串口1接收中断：初始上电默认关闭状态
   HAL_ADCEx_Calibration_Start(&hadc1); //ADC采样校准
   // HAL_ADC_Start_DMA(&hadc1, (uint32_t *)&ADC1_Value, 1); // 单通道：启动DMA，采集到数据存入的变量地址，长度为1字节
   HAL_ADC_Start_DMA(&hadc1, (uint32_t *)ADC1_MulChannel_Value, 2); // 双通道：启动DMA，采集到数据存入的变量地址，长度为2字节
   
-  ECO_STANDBY_Check(); // 节能：待机模式唤醒检测
+  // ECO_STANDBY_Check(); // 节能：待机模式唤醒检测
   
   HAL_Delay(500); // 延时等待MCU稳定
   DHT11_Init();
@@ -174,7 +177,7 @@ int main(void)
     // 节能模式
     // ECO_Config(1); // 睡眠
     // ECO_Config(2); // 停机
-    ECO_Config(3); // 待机
+    // ECO_Config(3); // 待机
 
     // CRC 校验测试
     CRC_Debug();
@@ -248,6 +251,17 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief NVIC Configuration.
+  * @retval None
+  */
+static void MX_NVIC_Init(void)
+{
+  /* EXTI0_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(EXTI0_IRQn, 1, 0);
+  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 }
 
 /* USER CODE BEGIN 4 */

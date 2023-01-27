@@ -31,6 +31,7 @@
 #include <sys/time.h>
 #include <sys/times.h>
 #include "usart.h"
+#include "main.h"
 
 
 /* Variables */

@@ -216,3 +216,25 @@ extern void SystemClock_Config(void); // 导出时钟函数以便于节能模式
 
 3. 芯片ID读取
    + `void ID_Get(uint8_t show);`
+
+
+## V1.0.9
+
+> 外部中断实验  
+> 2023.1.27
+
+按键中断实验:
+> 使用外部触发中断以确保按键不受主程序中耗时影响，达到实时响应效果。  
+   + 需要配置1个GPIO作为外部触发中断(GPIO_EXTI): e.g. PA0 -> GPIO_EXTI0
+   + 参数如下: GPIO_Mode -> 下降沿触发; GPIO_Pull-up 上拉   （按键引脚初始为高电平，按下低电平，此时产生一个下降沿信号）
+   + NVIC 中允许 EXTI0
+   + 😋Tips: 若多个GPIO共用一个外部中断，可以在中断回调函数中判断各GPIO电平以确定具体是哪一个产生了中断。
+   + 😅外部中断回调函数中均不能使用 HAL 库自带的 `HAL_Delay() // 延时函数`；可以使用自写的延时 `Delay_Us()`
+   + 调用逻辑分析:
+   + `stm32f1xx_it.c: EXTI0_IRQHandler() -> stm32f1xx_hal_gpio.c: HAL_GPIO_EXTI_IRQHandler() -> HAL_GPIO_EXTI_Callback()`
+
+🙄玄学说明：
+> 开启PA0点外部中断(NVIC)，编译可能会提示链接报错 `undefined reference to 'HAL_UART_Transmit'`，目前原因未知
+
+解决：原因在于CubeMX生成的默认中断优先级均为0会产生冲突
+NVIC -> 调整 EXTI0 的外部中断优先级编号为 1

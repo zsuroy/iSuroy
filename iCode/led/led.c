@@ -24,7 +24,7 @@ void LED_Toggle(void)
     Beep_Mid1(); // 蜂鸣器
     RELAY_Toggle(); // 继电器
     HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
-    HAL_Delay(1000);
+    // HAL_Delay(1000); //为了在按键外部中断回调函数中使用屏蔽此句延时
 }
 
 

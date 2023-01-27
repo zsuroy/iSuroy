@@ -1,7 +1,8 @@
 #ifndef __DHT11_H
-#define __DHT11_H	 
+#define __DHT11_H
+
 #include "stm32f1xx_hal.h"
-#include "../delay/delay.h"
+#include "main.h"
 
 // main.c 中已经定义
 // #define DHT11_Pin GPIO_PIN_6

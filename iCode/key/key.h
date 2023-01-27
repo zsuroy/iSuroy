@@ -33,7 +33,7 @@ extern "C" {
 
 uint8_t KEY_Read(void);
 uint8_t KEY_State(void);
-
+uint8_t KEY_2();
 
 #ifdef __cplusplus
 }

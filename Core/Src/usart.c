@@ -22,6 +22,7 @@
 
 /* USER CODE BEGIN 0 */
 #include <stdio.h>
+#include "stm32f1xx_hal.h"
 
 uint16_t USART1_RX_STA=0; // 接收状态标记： bit 15 接收完成标注; bit 14 接收到0x0d; bit 13-0 接收到有效字节数目
 uint8_t USART1_NewData; // 当前串口1中断接收到1个字节的缓存

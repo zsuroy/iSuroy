@@ -22,6 +22,7 @@
 #include "crc.h"
 #include "dma.h"
 #include "rtc.h"
+#include "tim.h"
 #include "usart.h"
 #include "usb_device.h"
 #include "gpio.h"
@@ -105,6 +106,8 @@ int main(void)
   MX_RTC_Init();
   MX_USB_DEVICE_Init();
   MX_CRC_Init();
+  MX_TIM2_Init();
+  MX_TIM3_Init();
 
   /* Initialize interrupts */
   MX_NVIC_Init();
@@ -114,6 +117,8 @@ int main(void)
   // HAL_ADC_Start_DMA(&hadc1, (uint32_t *)&ADC1_Value, 1); // 单通道：启动DMA，采集到数据存入的变量地址，长度为1字节
   HAL_ADC_Start_DMA(&hadc1, (uint32_t *)ADC1_MulChannel_Value, 2); // 双通道：启动DMA，采集到数据存入的变量地址，长度为2字节
   
+  HAL_TIM_Base_Start_IT(&htim2); //开启TIM定时器中断: 必须要先开启才能进入中断处理回调函数
+
   // ECO_STANDBY_Check(); // 节能：待机模式唤醒检测
   
   HAL_Delay(500); // 延时等待MCU稳定
@@ -155,6 +160,9 @@ int main(void)
    */
 
     LED_Check(0);
+
+    // PWM控制LED
+    PWM_Value = TIM_PWM_Set();
 
     // 普通RTC
     // RTC_Command(0, 0); // 时间及提示读取
@@ -198,6 +206,8 @@ int main(void)
 
     // DMA
     // printf("ADC1_DMA_0=%04d  ADC1_DMA_1=%04d\r\n", ADC1_MulChannel_Value[0], ADC1_MulChannel_Value[1]); //读取ADC1数值，4位十进制
+
+    HAL_Delay(500);
 
   }
   /* USER CODE END 3 */

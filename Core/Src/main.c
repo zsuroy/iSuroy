@@ -37,6 +37,7 @@
 #include "../../iCode/DHT11/dht11.h"
 #include "../../USB_DEVICE/App/usbd_cdc_if.h"
 #include "../../iCode/eco/eco.h"
+#include "../../iCode/WIFI/wifi.h"
 #include "stdio.h"
 /* USER CODE END Includes */
 
@@ -108,11 +109,13 @@ int main(void)
   MX_CRC_Init();
   MX_TIM2_Init();
   MX_TIM3_Init();
+  MX_USART3_UART_Init();
 
   /* Initialize interrupts */
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
   HAL_UART_Receive_IT(&huart1, (uint8_t *)&USART1_NewData, 1); //开启串口1接收中断：初始上电默认关闭状态
+  HAL_UART_Receive_IT(&huart3, (uint8_t *)&USART3_NewData, 1); //开启WIFI-串口3接收中断：初始上电默认关闭状态
   HAL_ADCEx_Calibration_Start(&hadc1); //ADC采样校准
   // HAL_ADC_Start_DMA(&hadc1, (uint32_t *)&ADC1_Value, 1); // 单通道：启动DMA，采集到数据存入的变量地址，长度为1字节
   HAL_ADC_Start_DMA(&hadc1, (uint32_t *)ADC1_MulChannel_Value, 2); // 双通道：启动DMA，采集到数据存入的变量地址，长度为2字节
@@ -124,6 +127,9 @@ int main(void)
   HAL_Delay(500); // 延时等待MCU稳定
   DHT11_Init();
   HAL_Delay(1500); // 延时等待DHT11稳定
+
+
+  WIFI_Start(); // WIFI连接到TCP服务器
 
   /* USER CODE END 2 */
 
@@ -186,6 +192,9 @@ int main(void)
     // ECO_Config(1); // 睡眠
     // ECO_Config(2); // 停机
     // ECO_Config(3); // 待机
+
+    //WIFI控制调试
+    WIFI_CONTROL_Debug();
 
     // CRC 校验测试
     CRC_Debug();

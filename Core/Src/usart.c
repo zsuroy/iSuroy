@@ -27,9 +27,17 @@
 uint16_t USART1_RX_STA=0; // 接收状态标记： bit 15 接收完成标注; bit 14 接收到0x0d; bit 13-0 接收到有效字节数目
 uint8_t USART1_NewData; // 当前串口1中断接收到1个字节的缓存
 uint8_t USART1_RX_BUF[USART1_RX_LEN]; // 接收缓冲区
+
+uint16_t USART3_RX_STA=0; // 接收状态标记： bit 15 接收完成标注; bit 14 接收到0x0d; bit 13-0 接收到有效字节数目
+uint8_t USART3_NewData; // 当前串口1中断接收到1个字节的缓存
+uint8_t USART3_RX_BUF[USART3_RX_LEN]; // 接收缓冲区
+
+
+
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart1;
+UART_HandleTypeDef huart3;
 
 /* USART1 init function */
 
@@ -58,6 +66,35 @@ void MX_USART1_UART_Init(void)
   /* USER CODE BEGIN USART1_Init 2 */
 
   /* USER CODE END USART1_Init 2 */
+
+}
+/* USART3 init function */
+
+void MX_USART3_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART3_Init 0 */
+
+  /* USER CODE END USART3_Init 0 */
+
+  /* USER CODE BEGIN USART3_Init 1 */
+
+  /* USER CODE END USART3_Init 1 */
+  huart3.Instance = USART3;
+  huart3.Init.BaudRate = 115200;
+  huart3.Init.WordLength = UART_WORDLENGTH_8B;
+  huart3.Init.StopBits = UART_STOPBITS_1;
+  huart3.Init.Parity = UART_PARITY_NONE;
+  huart3.Init.Mode = UART_MODE_TX_RX;
+  huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart3.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART3_Init 2 */
+
+  /* USER CODE END USART3_Init 2 */
 
 }
 
@@ -95,6 +132,36 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
 
   /* USER CODE END USART1_MspInit 1 */
   }
+  else if(uartHandle->Instance==USART3)
+  {
+  /* USER CODE BEGIN USART3_MspInit 0 */
+
+  /* USER CODE END USART3_MspInit 0 */
+    /* USART3 clock enable */
+    __HAL_RCC_USART3_CLK_ENABLE();
+
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    /**USART3 GPIO Configuration
+    PB10     ------> USART3_TX
+    PB11     ------> USART3_RX
+    */
+    GPIO_InitStruct.Pin = GPIO_PIN_10;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    GPIO_InitStruct.Pin = GPIO_PIN_11;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    /* USART3 interrupt Init */
+    HAL_NVIC_SetPriority(USART3_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(USART3_IRQn);
+  /* USER CODE BEGIN USART3_MspInit 1 */
+
+  /* USER CODE END USART3_MspInit 1 */
+  }
 }
 
 void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
@@ -119,6 +186,26 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
   /* USER CODE BEGIN USART1_MspDeInit 1 */
 
   /* USER CODE END USART1_MspDeInit 1 */
+  }
+  else if(uartHandle->Instance==USART3)
+  {
+  /* USER CODE BEGIN USART3_MspDeInit 0 */
+
+  /* USER CODE END USART3_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_USART3_CLK_DISABLE();
+
+    /**USART3 GPIO Configuration
+    PB10     ------> USART3_TX
+    PB11     ------> USART3_RX
+    */
+    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_10|GPIO_PIN_11);
+
+    /* USART3 interrupt Deinit */
+    HAL_NVIC_DisableIRQ(USART3_IRQn);
+  /* USER CODE BEGIN USART3_MspDeInit 1 */
+
+  /* USER CODE END USART3_MspDeInit 1 */
   }
 }
 
@@ -171,7 +258,8 @@ void UART_DEBUG(void)
  * @note 
  * 需要在 main.c 中初始化:  
  * HAL_UART_Receive_IT(&huart1, (uint8_t *)&USART1_NewData, 1); //开启串口1接收中断：初始上电默认关闭状态
- * 
+ * HAL_UART_Receive_IT(&huart3, (uint8_t *)&USART3_NewData, 1); //开启串口3接收中断：初始上电默认关闭状态
+ * USART3_RX_STA=0; // 清零接收标志位
  * 
  */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
@@ -203,6 +291,48 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     }
     HAL_UART_Receive_IT(huart, (uint8_t *)&USART1_NewData, 1); // 再开启接收中断
   }
+
+  if(huart == &huart3) // 中断来源（串口3:WIFI模块）
+  {
+    //[原始数据内容]字符: +IPD,1:A    Hex: 0D 0A 2B 49 50 44 2C 31 3A 41 (1为数量，A为内容)
+    //【接收原理】当接收到0x0A(即回车\r)时触发接下来的数据采集程序
+    //首先清空USART3_RX_BUF[]寄存器，然后将USART3_RX_STA的16位中bit15位置1(01000000 00000000)
+    //此时开始采集接下来收到的数据，当收到前6个数据位"+IPD,1:“时，且第7个数据部位0时，表示接收完数据。
+    //然后将接收的第7位的一个字节数据内容放入到USART3_RX_STA寄存器低8位，并将16位最高位置1(10000000 00000000)
+    //【调用说明】在主函数中用if语句判断(USART3_RX_STA&0x8000)为真时表示成功收到数据
+    //然后读取USART3_RX_STA寄存器低14位内容(USART3_RX_STA&0x3FFFF)，即是数据的内容（1个字节）
+    //主函数处理完数据后要将USART3_RX_STA清0，才能开启下一次数据接收
+    if(USART3_RX_STA&0x4000)
+    { // 收到 bit14表示接收到0X0D(接收协议)  其中，0x0D（asc码是13指的是“回车”\r，是把光标置于本行行首; 0x0A（asc码是10） 指的是“换行”\n，是把光标置于下一行的同一列
+      
+      USART3_RX_BUF[USART3_RX_STA&0x3FFF]=USART3_NewData; // 将接收到的数据放入熟组: &0x3FFFF是确定接收到的数据长度的
+      USART3_RX_STA++; // 数据长度递增
+
+      // Packet demo: \n\r+IPD,1:*    *为传入字符
+      //              0x0D 0x0A 0x2B xxxxxxx
+      if(USART3_RX_BUF[0]=='+' && // 判断返回字符前几位是不是 "+IPD,1:"
+        USART3_RX_BUF[1]=='I' &&
+        USART3_RX_BUF[2]=='P' &&
+        USART3_RX_BUF[3]=='D' &&
+        USART3_RX_BUF[4]==',' &&
+        USART3_RX_BUF[5]=='1' && //限定只接收1个数量的数据（根据具体项目修改）
+        USART3_RX_BUF[6]==':' &&
+        USART3_RX_BUF[7]!=0){//同时判断第一个数据是否为0，为0则表未收到数据
+          USART3_RX_STA = USART3_RX_BUF[7]+0x8000; // 将数据内容写入寄存器，16位最高位1表接收完成；等同于 ｜ 运算
+        }
+    }
+
+    // 尚未收到 0x0A（\r回车）
+    if(USART3_NewData == 0x0A && !(USART3_RX_STA&0x8000))
+    {
+      USART3_RX_STA = 0x4000; //将开始采集标志位 置1（bit15）
+      for(uint8_t a=0; a<USART3_RX_LEN; a++)USART3_RX_BUF[a]=0; //清空数据寄存器
+    }
+
+    HAL_UART_Receive_IT(huart, (uint8_t *)&USART3_NewData, 1); // 再开启串口3接收中断
+
+  }
+
 }
 
 

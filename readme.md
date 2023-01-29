@@ -8,7 +8,7 @@
   <h1>STM32 项目驱动应用库</h1>
   <p> 基于 STM32F103C8T6 的 HAL 库应用实践模版  </p>
   <p>开发环境: Vscode + Embeded IDE + GCC + Cortex-debug (MacOS)  </p>
-  <p>作者: Suroy (https://suroy.cn) </p>
+  <p>作者: 👨🏻‍💻 Suroy (https://suroy.cn) </p>
 
   <p>
     <a href="https://suroy.cn"><img alt="SUROY(BLOG)" src="https://img.shields.io/website?down_message=FLOWER&label=SUROY&up_color=ff69b4&up_message=DREAM&logo=micro:bit&url=https%3A%2F%2Fsuroy.cn"></a>
@@ -26,6 +26,7 @@
 
 [基于 VsCode + GCC + STM32 环境下的串口输入输出重定向](https://suroy.cn/embeded/serial-port-inputoutput-redirection-based-on-vscode-gcc-stm32-environment.html)
 
+[ARM 嵌入式基于 STM32CUBEMX 开发指南](https://suroy.cn/embeded/arm-embedded-development-guide-based-on-stm32cubemx.html)
 
 # 版本说明
 
@@ -301,3 +302,87 @@ extern void SystemClock_Config(void); // 导出时钟函数以便于节能模式
       + 初始化: `MX_TIM2_Init();//TIM3初始化` ， `HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3); // 开启定时器PWM输出`
       + 占空比设置: `__HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_3, PWM_Value); // 设置占空比函数`
       + 自写函数: `uint32_t TIM_PWM_Set(void); //获取PWM值`
+
+
+
+## V1.0.11
+
+> WIFI模块通讯  
+> 2023.1.29
+
+
+1. 调试技巧
+
+> 若无其他工具协助调试时，可以直接采用串口电平转发的形式实现将A串口数据转发到 ESP8266 所用B串口
+
+```c
+// 使用前需要先在程序中删除 USART1、USART3相关代码；采用GPIO端口电平互传，相当于导线连接
+while(1)
+{
+   HAL_GPIO_Write(GPIOB, GPIO_PIN_10, HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_10)); // 将PA10(USART1-RX) 到电平状态转发到PB11(USART3-TX)
+
+   HAL_GPIO_Write(GPIOB, GPIO_PIN_9, HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11)); // 将PA10(USART1-TX) 到电平状态转发到PB11(USART3-RX)
+}
+```
+
+2. 常用AT指令集
+
+```text
+
+// 复位
+AT+RST
+
+// 设置Sta模式
+AT+CWMODE=1
+
+// 查询周围WIFI
+AT+CWLAP
+
+// 查询FLASH中配置的AP信息
+AT+CWJAP_DEF?
+
+// 配置AP
+AT+CWJAP_DEF="SUROY_iNet","Suroy921-"
+
+// 查询IP地址
+AT+CIFSR
+
+// [本机作客户端] 设置设备单连接模式(0,单连接；1,多连接)
+AT+CIPMUX=0
+
+// 建立TCP连接
+AT+CIPSTART="TCP","192.168.123.1",8888
+
+// 发送数据(5个字节)
+AT+CIPSEND=5
+
+// 断开连接
+AT+CIPCLOSE
+
+// 断开WIFI
+AT+CWQAP
+
+```
+
+3. 基础知识回顾
+
+\n ： 换行符（newline），另起一行，对应ASCII值10，16进制0x0D（缩写：LF）。  
+\r ： 回车符（return），回到一行的开头，对应ASCII值13，16进制0x0A（缩写：CR）。  
+前者使光标到行首，后者使光标下移一格。通常用的Enter是两个加起来。要想通用的话，最好用\r\n换行。
+Windows系统里面，每行结尾是 回车+换行（CR+LF），即“\r\n”；
+Unix系统里，每行结尾只有 换行CR，即“\n”；
+Mac系统里，每行结尾是 回车CR 即‘\r’；
+我们平时编写文件的回车符应该确切来说叫做回车换行符；
+
+
+注意：实际项目应用时需要变更 wifi.c 中程序逻辑，当前仅接收1个字节数据。
+
+
+
+🌏 TodoList  
+
+- [ ] RS485 通讯驱动
+- [ ] CAN 通讯驱动
+- [ ] SPI 闪存芯片驱动
+- [ ] 蓝牙驱动(模块坏了🌚)
+

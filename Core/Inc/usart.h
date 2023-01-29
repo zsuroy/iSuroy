@@ -33,15 +33,25 @@ extern "C" {
 
 extern UART_HandleTypeDef huart1;
 
+extern UART_HandleTypeDef huart3;
+
 /* USER CODE BEGIN Private defines */
 #define USART1_RX_LEN 200 // USART1 最大接收长度
 extern uint16_t USART1_RX_STA; // 接收状态标记： bit 15 接收完成标注; bit 14 接收到0x0d; bit 13-0 接收到有效字节数目
 extern uint8_t USART1_NewData; // 当前串口1中断接收到1个字节的缓存
 extern uint8_t USART1_RX_BUF[USART1_RX_LEN]; // 接收缓冲区
 
+
+#define USART3_RX_LEN 200 // USART3 最大接收长度
+extern uint16_t USART3_RX_STA; // 接收状态标记： bit 15 接收完成标注; bit 14 接收到0x0d; bit 13-0 接收到有效字节数目
+extern uint8_t USART3_NewData; // 当前串口3中断接收到1个字节的缓存
+extern uint8_t USART3_RX_BUF[USART3_RX_LEN]; // 接收缓冲区
+
+
 /* USER CODE END Private defines */
 
 void MX_USART1_UART_Init(void);
+void MX_USART3_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 void UART_Direct(UART_HandleTypeDef *huart);

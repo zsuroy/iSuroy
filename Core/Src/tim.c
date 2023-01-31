@@ -22,6 +22,7 @@
 
 /* USER CODE BEGIN 0 */
 #include "../iCode/beep/beep.h"
+#include "usart.h"
 #include <stdio.h>
 
 
@@ -47,9 +48,9 @@ void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 49999;
+  htim2.Init.Prescaler = 7199;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 7199;
+  htim2.Init.Period = 999;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
@@ -230,6 +231,7 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
  */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
+  /* V1.0.10 版本，于 V1.0.12 中由于项目需要变更
   if(htim==(&htim2))
   { // 判断产生中断的定时器
     printf("Enter TIM2: 5s\r\n");
@@ -237,6 +239,17 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
     __HAL_TIM_CLEAR_FLAG(&htim2, TIM_FLAG_UPDATE); //清空定时器中断标志位，若不清空可能会导致不进 while(1) 主程序
   }
+  */
+
+
+  if(htim ==&htim2)//判断是否是定时器2中断（定时器到时表示一组字符串接收结束）
+  {
+  USART3_RX_BUF[USART3_RX_STA&0X7FFF]=0;//添加结束符
+  USART3_RX_STA|=0x8000;//接收标志位最高位置1表示接收完成
+  __HAL_TIM_CLEAR_FLAG(&htim2,TIM_EVENTSOURCE_UPDATE );//清除TIM2更新中断标志
+  __HAL_TIM_DISABLE(&htim2);//关闭定时器2
+  }
+
 }
 
 

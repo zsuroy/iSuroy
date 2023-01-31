@@ -24,6 +24,7 @@
   "targets": {
     "Debug": {
       "excludeList": [
+        "iCode/sys/sysmem.c",
         "iCode/rtc"
       ],
       "toolchain": "GCC",

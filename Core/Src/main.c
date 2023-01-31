@@ -29,6 +29,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+
+#include "stdio.h"
 #include "../../iCode/led/led.h"
 #include "../../iCode/key/key.h"
 #include "../../iCode/beep/beep.h"
@@ -38,7 +40,8 @@
 #include "../../USB_DEVICE/App/usbd_cdc_if.h"
 #include "../../iCode/eco/eco.h"
 #include "../../iCode/WIFI/wifi.h"
-#include "stdio.h"
+#include "../../iCode/aliyun/esp8266/esp8266.h"
+#include "../../iCode/aliyun/iot/iot.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -129,7 +132,17 @@ int main(void)
   HAL_Delay(1500); // 延时等待DHT11稳定
 
 
-  WIFI_Start(); // WIFI连接到TCP服务器
+  // WIFI_Start(); // WIFI连接到TCP服务器
+
+
+  // WIFI模块上云初始化
+	//  while(esp8266_Connect_AP());//连接AP无线路由器热点（热点参数在esp8266.h。WIFI模块已保存热点时可屏蔽）
+	while(esp8266_Connect_IOTServer());//AT指令连接TCP连接云服务器（IP和端口参数在esp8266.h文件内修改设置）
+	while(IOT_connect());//用MQTT协议+三元组信息连接阿里云物联网平台（三元组参数在iot.h文件内修改设置）
+	printf("订阅云服务器\r\n");
+	HAL_Delay(100);//等待
+	IOT_subscribe();//主题订阅（订阅成功后才能接收订阅消息）
+	// PING_Counter=0xFFF0; //强制发送心跳包的计数溢出，立即重发心跳包
 
   /* USER CODE END 2 */
 
@@ -166,6 +179,9 @@ int main(void)
    */
 
     LED_Check(0);
+
+    // IOT云平台循环
+    IOT_Work();
 
     // PWM控制LED
     PWM_Value = TIM_PWM_Set();

@@ -342,7 +342,7 @@ AT+CWLAP
 AT+CWJAP_DEF?
 
 // 配置AP
-AT+CWJAP_DEF="SUROY_iNet","Suroy921-"
+AT+CWJAP_DEF="SUROY","8888"
 
 // 查询IP地址
 AT+CIFSR
@@ -362,6 +362,10 @@ AT+CIPCLOSE
 // 断开WIFI
 AT+CWQAP
 
+// DEBUG
+22:08:00:133 -> +CIFSR:STAIP,"192.168.1.14"
+22:08:00:135 -> +CIFSR:STAMAC,"8c:aa:b5:62:69:bc"
+
 ```
 
 3. 基础知识回顾
@@ -376,6 +380,37 @@ Mac系统里，每行结尾是 回车CR 即‘\r’；
 
 
 注意：实际项目应用时需要变更 wifi.c 中程序逻辑，当前仅接收1个字节数据。
+
+
+## V1.0.12
+
+> 阿里云物联网平台(MQTT)  
+> 2023.1.31
+
+1. 配置说明
+
++ TIM2定时器
+  + `Core/Src/tim.c` -> `HAL_TIM_PeriodElapsedCallback`
+  + 定时100ms
+  + PSC: 7199; CP: 999
+  + 用于判断WIFI串口收发数据是否为同一个数据包即收发字节间隔小于100ms；在每组数据接收时同步开启TIM2定时器100ms，此内间隔接收的均为同组数据，超出则判断为下组数据。
+
++ 串口收发数据
+  + `Core/Src/usart.c` 中断回调函数
+    + 已更新接收函数，不同于 V1.0.11 版本，采用定时器辅助接收MQTT数据包
+  + `iCode/aliyun/mqtt/transport.c` MQTT数据收发协议： 将收发与串口驱动联系起来
+    + `transport_sendPacketBuffer` MQTT发送数据包
+    + `transport_getdata` MQTT接收数据包
+  + `iCode/aliyun/esp8266/esp8266.c` WIFI模块AT指令封装
+  + `iCode/aliyun/iot/iot.c` 云平台SDK封装
+
+2. 使用说明
+
++ 修改WIFI连接信息  
++ 修改阿里云MQTT三元组  
++ 主函数功能实现 `IOT_Work()`
+
+PS: 注意中文显示，需要串口调试助手开启GB2312编码。
 
 
 

@@ -22,7 +22,9 @@
 
 /* USER CODE BEGIN 0 */
 #include <stdio.h>
+#include <string.h>
 #include "stm32f1xx_hal.h"
+#include "tim.h"
 
 uint16_t USART1_RX_STA=0; // 接收状态标记： bit 15 接收完成标注; bit 14 接收到0x0d; bit 13-0 接收到有效字节数目
 uint8_t USART1_NewData; // 当前串口1中断接收到1个字节的缓存
@@ -126,7 +128,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /* USART1 interrupt Init */
-    HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(USART1_IRQn, 1, 0);
     HAL_NVIC_EnableIRQ(USART1_IRQn);
   /* USER CODE BEGIN USART1_MspInit 1 */
 
@@ -292,6 +294,27 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     HAL_UART_Receive_IT(huart, (uint8_t *)&USART1_NewData, 1); // 再开启接收中断
   }
 
+
+  if(huart ==&huart3)//判断中断来源（串口3：WIFI模块）//接收完的一批数据,还没有被处理,则不再接收其他数据
+	{
+		if(USART3_RX_STA<USART3_RX_LEN)//还可以接收数据
+		{
+			__HAL_TIM_SET_COUNTER(&htim2,0); //计数器清空
+			if(USART3_RX_STA==0) //使能定时器2的中断
+			{
+				__HAL_TIM_ENABLE(&htim2); //使能定时器2
+			}
+			USART3_RX_BUF[USART3_RX_STA++] = USART3_NewData;//最新接收数据放入数组
+		}else
+		{
+			USART3_RX_STA|=0x8000;//强制标记接收完成
+		}
+
+		HAL_UART_Receive_IT(&huart3,(uint8_t *)&USART3_NewData,1); //再开启串口3接收中断
+	}
+
+  /* V1.0.11 版本，V1.0.12弃用: 由于无法接收不定长数据
+
   if(huart == &huart3) // 中断来源（串口3:WIFI模块）
   {
     //[原始数据内容]字符: +IPD,1:A    Hex: 0D 0A 2B 49 50 44 2C 31 3A 41 (1为数量，A为内容)
@@ -332,6 +355,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     HAL_UART_Receive_IT(huart, (uint8_t *)&USART3_NewData, 1); // 再开启串口3接收中断
 
   }
+
+  */
+
 
 }
 

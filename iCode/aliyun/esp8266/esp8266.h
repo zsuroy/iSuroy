@@ -8,7 +8,7 @@
 //【网络连接信息】在下方修改设置您的路由器热点和物联网平台IP地址+端口号信息（手动复制正确信息到双引号内）
 
 #define SSID "SUROY" //无线路由器热点名称【必须按您的实际情况修改】
-#define PASS "12345678"   //无线路由器热点密码【必须按您的实际情况修改】
+#define PASS "8888"   //无线路由器热点密码【必须按您的实际情况修改】
 
 #define IOT_DOMAIN_NAME "iot-06z00iylhpfrg6v.mqtt.iothub.aliyuncs.com" //云服务器IP地址【必须按您的实际情况修改】
 #define IOT_PORTNUM 	"1883" //云服务器端口号

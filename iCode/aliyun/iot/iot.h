@@ -20,7 +20,7 @@
 #define  PRODUCTKEY_LEN       strlen(PRODUCTKEY) //产品ID长度
 #define  DEVICENAME			 "i001" //设备名（DeviceName）【必须按您的实际情况修改】
 #define  DEVICENAME_LEN       strlen(DEVICENAME) //设备名长度
-#define  DEVICESECRE          "SUROY" //设备秘钥（DeviceSecret）【必须按您的实际情况修改】
+#define  DEVICESECRE          "1234" //设备秘钥（DeviceSecret）【必须按您的实际情况修改】
 #define  DEVICESECRE_LEN      strlen(DEVICESECRE) //设备秘钥长度
 
 #define  TOPIC_SUBSCRIBE		"/SUROY/i001/user/get" //订阅权限的地址【必须按您的实际情况修改】

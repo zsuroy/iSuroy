@@ -26,7 +26,20 @@
             "editor.tabSize": 4,
             "editor.autoIndent": "advanced"
         },
-        "EIDE.SerialPortMonitor.BaudRate": 115200
+        "EIDE.SerialPortMonitor.BaudRate": 115200,
+        "files.exclude": {
+            ".vscode/launch.json": true,
+            ".settings": true,
+            ".eide/log": true,
+            ".eide.usr.ctx.json": true,
+            "build": true,
+            "bin": true,
+            "obj": true,
+            "out": true,
+            "**/*.ept": true,
+            "**/*.eide-template": true,
+            "**/.DS_Store": true
+        }
     },
     "extensions": {
         "recommendations": [

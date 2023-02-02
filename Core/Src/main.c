@@ -21,6 +21,7 @@
 #include "adc.h"
 #include "crc.h"
 #include "dma.h"
+#include "i2c.h"
 #include "rtc.h"
 #include "tim.h"
 #include "usart.h"
@@ -42,6 +43,7 @@
 #include "../../iCode/WIFI/wifi.h"
 #include "../../iCode/aliyun/esp8266/esp8266.h"
 #include "../../iCode/aliyun/iot/iot.h"
+#include "../../iCode/OLED/oled.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -113,6 +115,7 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM3_Init();
   MX_USART3_UART_Init();
+  MX_I2C1_Init();
 
   /* Initialize interrupts */
   MX_NVIC_Init();
@@ -131,6 +134,7 @@ int main(void)
   DHT11_Init();
   HAL_Delay(1500); // 延时等待DHT11稳定
 
+  OLED_Debug(); // OLED显示
 
   // WIFI_Start(); // WIFI连接到TCP服务器
 
